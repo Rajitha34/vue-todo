@@ -1,43 +1,93 @@
 <template>
-  <div class="container">
+<div class="container">
     <div class="task">
-      <!-- title -->
-      <div class="title">
-        <h1>To Do List</h1>
-      </div>
-      <!-- form -->
-      <div class="form">
-        <input type="text" placeholder="New Task" />
-        <button><i class="fas fa-plus"></i></button>
-      </div>
-      <!-- task lists -->
-      <div class="taskItems">
-        <ul>
-          <li>
-            <button>Learn Vue JS</button>
-            <button><i class="far fa-trash-alt"></i></button>
-          </li>
-          <li>
-            <button>Watch netflix</button>
-            <button><i class="far fa-trash-alt"></i></button>
-          </li>
-        </ul>
-      </div>
-      <!-- buttons -->
-      <div class="clearBtns">
-        <button>Clear completed</button>
-        <button>Clear all</button>
-      </div>
-      <!-- pending task -->
-      <div class="pendingTasks">
-        <span>Pending Tasks: </span>
-      </div>
+        <!-- title -->
+        <div class="title">
+            <h1>To Do List</h1>
+        </div>
+        <!-- form -->
+        <div class="form">
+            <input type="text" placeholder="New Task" v-model="newTask" @keyup.enter="addTask" />
+            <button @click="addTask"><i class="fas fa-plus"></i></button>
+        </div>
+        <!-- task lists -->
+        <div class="taskItems">
+            <ul>
+                <task-item
+                 v-bind:task="task"
+                  v-for="(task, index) in tasks"
+                   :key="task.id"
+                    @remove="removeTask(index)"
+                    @complete="completeTask(task)"
+                    ></task-item>
+
+            </ul>
+        </div>
+        <!-- buttons -->
+        <div class="clearBtns">
+            <button @click="clearCompleted">Clear completed</button>
+            <button @click="clearAll">Clear all</button>
+        </div>
+        <!-- pending task -->
+        <div class="pendingTasks">
+            <span>Pending Tasks: {{ incompleted }} </span>
+        </div>
     </div>
-  </div>
+</div>
 </template>
 
 <script>
+import TaskItem from './Task-item';
 export default {
-  name: "Task",
+    name: "Task",
+    props: ['tasks'],
+    components: {
+        TaskItem
+    },
+    data() {
+        return {
+            newTask: "",
+        }
+    },
+    computed: {
+        incompleted() {
+            return this.tasks.filter(this.inProgress).length;
+        }
+
+    },
+    methods: {
+        addTask() {
+            if (this.newTask) {
+                this.tasks.push({
+                    title: this.newTask,
+                    completed: false
+                });
+                this.newTask = "";
+            }
+
+        },
+        inProgress(task) {
+            return !this.isCompleted(task);
+        },
+        isCompleted(task) {
+            return task.completed;
+        },
+        clearCompleted() {
+            this.tasks = this.tasks.filter(this.inProgress);
+        },
+        clearAll() {
+            this.tasks = [];
+        },
+        removeTask(index) {
+            this.tasks.splice(index, 1);
+
+        },
+        completeTask(task) {
+         task.completed = !task.completed;
+        }
+        
+
+    },
+
 };
 </script>
